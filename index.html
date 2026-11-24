@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JeepPay</title>
+<style>
+:root{
+  --g:#176b42; --gd:#105332; --gl:#2a8a5a; --bg:#f4f7f5; --card:#fff; --ink:#1c2b23; --muted:#6b7a71;
+  --line:#e4ece7; --tint:#e9f5ee; --warn:#fdecea; --bad:#b3261e; --nav:#ffffffee;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){color-scheme:dark;--g:#34a56f;--gd:#1d5c3d;--gl:#3fb37a;--bg:#0d1511;--card:#15201a;--ink:#e6f0ea;--muted:#8fa196;--line:#223028;--tint:#1a2f23;--warn:#3a1d1a;--bad:#ff8a80;--nav:#15201af0}
+}
+:root[data-theme="dark"]{color-scheme:dark;--g:#34a56f;--gd:#1d5c3d;--gl:#3fb37a;--bg:#0d1511;--card:#15201a;--ink:#e6f0ea;--muted:#8fa196;--line:#223028;--tint:#1a2f23;--warn:#3a1d1a;--bad:#ff8a80;--nav:#15201af0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums}
+.app{max-width:460px;margin:0 auto;min-height:100vh;padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 8px}
+.top b{display:block;font-size:24px;font-weight:700;letter-spacing:-.4px}
+.top small{display:block;color:var(--muted);font-size:13px;margin-top:1px}
+.top button{width:auto;padding:9px 15px;font-size:13px;margin:0 0 4px;border-radius:14px;box-shadow:0 4px 0 var(--gd)}
+.top button:active{box-shadow:0 1px 0 var(--gd)}
+.logo{display:inline-flex;align-items:center;gap:10px}
+.logo i{width:38px;height:38px;border-radius:12px;background:var(--g);display:grid;place-items:center}
+.logo svg{width:22px;height:22px;stroke:#fff}
+.pad{padding:12px 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:14px;box-shadow:0 3px 0 var(--line)}
+h2{margin:0 0 4px;font-size:26px;letter-spacing:-.5px} h3{margin:0 0 14px;font-size:17px;font-weight:700;letter-spacing:-.2px}
+.hero{box-shadow:0 5px 0 var(--gd);position:relative;overflow:hidden;background:var(--g);color:#fff;border:0;padding:24px}
+.hero::after{content:"";position:absolute;right:-60px;top:-70px;width:200px;height:200px;border-radius:50%;background:#ffffff14}
+.hero small{opacity:.8;font-size:13px}
+.hero .amt{font-size:46px;font-weight:700;letter-spacing:-1.5px;margin:4px 0 16px;line-height:1.1}
+.hero button{position:relative;z-index:1;background:#fff;color:var(--gd);width:auto;padding:12px 20px;margin:0 0 5px;font-size:14px;box-shadow:0 5px 0 #0b3b25}
+.hero button:active{box-shadow:0 1px 0 #0b3b25}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 6px}
+input,select{width:100%;font:inherit;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);margin:0 0 6px;appearance:none;-webkit-appearance:none;box-shadow:inset 0 2px 4px #00000012}
+input:focus,select:focus{outline:0;border-color:var(--g);background:var(--card)}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 22px) 50%,calc(100% - 16px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+button{position:relative;overflow:hidden;font:600 16px inherit;font-family:inherit;background:var(--g);color:#fff;border:0;border-radius:16px;padding:15px 16px;width:100%;margin:8px 0 6px;cursor:pointer;box-shadow:0 5px 0 var(--gd),0 10px 16px #0f4a2e30;transition:transform .08s,box-shadow .08s,filter .15s;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button:hover{filter:brightness(1.07)}
+button:active,button.down{transform:translateY(4px);box-shadow:0 1px 0 var(--gd),0 2px 4px #0f4a2e30;filter:brightness(.97)}
+button:disabled{opacity:.45;box-shadow:0 5px 0 var(--gd);transform:none}
+button{display:inline-flex;align-items:center;justify-content:center;gap:9px}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.top button .ico{width:16px;height:16px}
+.rip{position:absolute;border-radius:50%;background:#ffffff59;transform:scale(0);animation:rip .55s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+.pop{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.chips button{margin:0 0 5px;padding:16px 0;font-size:18px}
+:focus-visible{outline:3px solid var(--gl);outline-offset:2px}
+.hidden{display:none!important}
+.small{color:var(--muted);font-size:13px;margin:10px 0 0}
+.status{display:flex;align-items:center;gap:10px;background:var(--tint);border-radius:14px;padding:13px 14px;margin:0 0 4px;font-weight:500}
+.status::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.status.live::before{background:#2fbf71;box-shadow:0 0 0 4px #2fbf7133}
+.status.warn{background:var(--warn);display:block}.status.warn::before,#receipt::before{display:none}
+#receipt{display:block;margin-top:12px;line-height:1.7}
+.row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row:first-child{padding-top:0}.row:last-child{border:0;padding-bottom:0}
+.row strong{font-weight:600}
+.row .r{text-align:right;font-weight:700;white-space:nowrap}
+.bad{color:var(--bad)} .good{color:var(--g)}
+.stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.stats div{background:#ffffff1f;border-radius:16px;padding:12px 6px;text-align:center;font-size:12px;opacity:.95}
+.stats b{display:block;font-size:22px;letter-spacing:-.5px}
+.eta{font-size:64px;font-weight:700;letter-spacing:-2px;color:var(--g);line-height:1;margin:14px 0 0}
+.eta span:last-child{font-size:18px;font-weight:500;letter-spacing:0;color:var(--muted)}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:16px 0 14px}
+.bar i{display:block;height:100%;background:var(--g);border-radius:6px;transition:width .6s}
+.jeep{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:14px;padding:12px 14px}
+.jeep small{color:var(--muted)}
+.roles .card{padding:26px 22px}
+.roles button{padding:16px;margin:14px 0 6px;justify-content:flex-start;gap:16px;text-align:left;font-size:18px;border-radius:20px}
+.roles button .bub{width:54px;height:54px;border-radius:16px;background:#ffffff26;display:grid;place-items:center;flex:none}
+.roles button .bub .ico{width:28px;height:28px}
+.roles button small{display:block;font-weight:500;font-size:13px;opacity:.85;margin-top:2px}
+nav{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:436px;margin:0 auto;background:var(--nav);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:6px;box-shadow:0 8px 24px #0000001a}
+nav div{display:flex}
+nav button{display:block;flex:1;background:none;color:var(--muted);border-radius:18px;margin:0;padding:9px 0 7px;font-size:11px;font-weight:600;width:auto;box-shadow:none;transition:transform .08s,background .15s,color .15s}
+nav button svg{display:block;width:22px;height:22px;margin:0 auto 3px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button:active{transform:scale(.92);filter:none;box-shadow:none}
+nav button.on{background:var(--g);color:#fff;box-shadow:0 3px 0 var(--gd)}
+nav button.on:active{transform:translateY(3px);box-shadow:0 0 0 var(--gd)}
+#toast{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;max-width:90%;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+#toast.show{opacity:1;animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div id="login">
+  <div class="top"><div class="logo"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16V8a2 2 0 0 1 2-2h11l5 5v5H3z"/><circle cx="8" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg></i><div><b>JeepPay</b><small>Tap in. Ride. Pay by the km.</small></div></div></div>
+  <div class="pad roles">
+    <div class="card"><h2>Welcome</h2><p class="small" style="margin-top:0">Choose how you’re using JeepPay.</p>
+      <button onclick="selectRole('passenger')"><span class="bub"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><span>I’m a passenger<small>Load balance, tap in, and ride</small></span></button>
+      <button onclick="selectRole('driver')"><span class="bub"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 9.5V3M9.8 13.2L4 16M14.2 13.2L20 16"/></svg></span><span>I’m a driver<small>See payments and earnings</small></span></button>
+    </div>
+    <p class="small" style="text-align:center">Prototype for academic demonstration. Both roles share the same trip records.</p>
+  </div>
+</div>
+
+<!-- PASSENGER -->
+<div id="passenger" class="hidden">
+  <div class="top"><div><b>Hello 👋</b><small id="who">Passenger</small></div><button onclick="logout()"><svg class="ico" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9"/></svg>Log out</button></div>
+  <div class="pad">
+
+    <section data-tab="home">
+      <div class="card hero">
+        <small>Available balance</small>
+        <div class="amt" id="balance">₱0.00</div>
+        <button onclick="go('load')"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Load balance</button>
+      </div>
+      <div class="card">
+        <h3>Your trip</h3>
+        <label for="pid">Passenger ID</label>
+        <input id="pid" maxlength="30" value="PASSENGER-001" autocomplete="off">
+        <div class="status" id="tripStatus" role="status">No active trip.</div>
+        <button id="tapBtn" onclick="tapCard()"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12a10 10 0 0 1 0-0.1"/><path d="M8.5 8.5a5 5 0 0 1 0 7M12 6a8.500 8.500 0 0 1 0 12M15.500 3.500a12 12 0 0 1 0 17"/><circle cx="5" cy="12" r="1"/></svg>Tap card to start trip</button>
+        <div id="endBox" class="hidden">
+          <label for="dist">Distance travelled (km)</label>
+          <input id="dist" type="number" inputmode="decimal" min="0.1" max="200" step="0.1" placeholder="e.g. 6.5" oninput="previewFare()">
+          <p class="small" id="farePreview"></p>
+          <button onclick="endTrip()"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.500l2.800 2.800L16 9.500"/></svg>End trip and pay</button>
+          <button class="alt" onclick="cancelTrip()"><svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>Cancel trip</button>
+        </div>
+        <div id="receipt" class="status hidden"></div>
+        <p class="small">Tap is simulated (no NFC hardware). Fare: ₱2.00/km, minimum ₱13.00. Prototype rates, not official fares.</p>
+      </div>
+    </section>
+
+    <section data-tab="load" class="hidden">
+      <div class="card">
+        <h3>Load balance</h3>
+        <div class="chips">
+          <button class="alt" onclick="doLoad(50)">₱50</button>
+          <button class="alt" onclick="doLoad(100)">₱100</button>
+          <button class="alt" onclick="doLoad(200)">₱200</button>
+        </div>
+        <label for="loadAmt">Other amount (₱)</label>
+        <input id="loadAmt" type="number" inputmode="decimal" min="1" max="5000" placeholder="e.g. 75">
+        <button onclick="loadMoney()"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg>Load balance</button>
+        <p class="small">Simulated. No real money moves.</p>
+      </div>
+    </section>
+
+    <section data-tab="jeep" class="hidden">
+      <div class="card">
+        <h3>Next jeepney</h3>
+        <label for="route">Route</label>
+        <select id="route" onchange="resetJeep()"></select>
+        <div class="eta"><span id="eta">–</span> <span style="font-size:18px;font-weight:400">min</span></div>
+        <div class="bar"><i id="prog" style="width:0"></i></div>
+        <div class="jeep"><div><strong id="jNum"></strong><br><small id="jLoc"></small></div></div>
+        <p class="small">Simulated positions that advance every few seconds. No live GPS.</p>
+      </div>
+    </section>
+
+    <section data-tab="hist" class="hidden">
+      <div class="card"><h3>Transaction history</h3><div id="pHist"></div></div>
+    </section>
+  </div>
+
+  <nav><div>
+    <button data-nav="home" class="on" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button data-nav="load" onclick="go('load')"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 15h2"/></svg>Load</button>
+    <button data-nav="jeep" onclick="go('jeep')"><svg viewBox="0 0 24 24"><path d="M3 16V8a2 2 0 0 1 2-2h11l5 5v5H3z"/><circle cx="8" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/></svg>Jeepney</button>
+    <button data-nav="hist" onclick="go('hist')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
+  </div></nav>
+</div>
+
+<!-- DRIVER -->
+<div id="driver" class="hidden">
+  <div class="top"><div><b>Driver</b><small>Today’s collections</small></div><button onclick="logout()"><svg class="ico" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9"/></svg>Log out</button></div>
+  <div class="pad">
+    <div class="card hero">
+      <small>Collected from paid trips</small>
+      <div class="amt" id="dTotal">₱0.00</div>
+      <div class="stats">
+        <div><b id="dPaid">0</b>Paid</div>
+        <div><b id="dDecl">0</b>Declined</div>
+        <div><b id="dKm">0</b>Total km</div>
+      </div>
+    </div>
+    <div class="card"><h3>Passenger payments</h3><div id="dHist"></div></div>
+    <button class="alt" onclick="resetDemo()"><svg class="ico" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.300 5.700M20 4v7h-7"/></svg>Reset demo data</button>
+  </div>
+</div>
+
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// Money is stored in centavos to avoid rounding errors.
+const RATE = 200, MIN_FARE = 1300, START_BAL = 15000, KEY = "jeeppay.v2";
+const ROUTES = {
+  "San Fernando – Bauang":   {n:"Jeepney #001", loc:["Bauang Terminal","Near Bauang Market","Along the National Highway","Approaching your stop","At your stop"], eta:[12,9,6,3,1]},
+  "San Fernando – Bacnotan": {n:"Jeepney #002", loc:["San Fernando Terminal","Near San Juan","Along Bacnotan Road","Approaching your stop","At your stop"], eta:[15,11,7,3,1]},
+  "San Fernando – San Juan": {n:"Jeepney #003", loc:["San Fernando Terminal","Near the city center","Along the highway","Approaching your stop","At your stop"], eta:[10,8,5,2,1]}
+};
+
+let S = {balance:START_BAL, tx:[], trip:null};
+try { const r = localStorage.getItem(KEY); if (r) S = Object.assign(S, JSON.parse(r)); } catch(e){}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+const $ = id => document.getElementById(id);
+const peso = c => "₱" + (c/100).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc = v => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fareFor = km => Math.max(MIN_FARE, Math.ceil(km * RATE));
+let tt; function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove("show"),2800); }
+
+let jeepTimer = null, tripTimer = null;
+function selectRole(r){
+  $("login").classList.add("hidden"); $(r).classList.remove("hidden");
+  if (r === "passenger"){ go("home"); renderBalance(); renderTrip(); renderPassenger(); resetJeep(); }
+  else renderDriver();
+  window.scrollTo(0,0);
+}
+function logout(){
+  clearInterval(jeepTimer); clearInterval(tripTimer);
+  $("passenger").classList.add("hidden"); $("driver").classList.add("hidden"); $("login").classList.remove("hidden");
+}
+function go(tab){
+  document.querySelectorAll("[data-tab]").forEach(s => s.classList.toggle("hidden", s.dataset.tab !== tab));
+  document.querySelectorAll("[data-nav]").forEach(b => b.classList.toggle("on", b.dataset.nav === tab));
+  window.scrollTo(0,0);
+}
+function resetDemo(){
+  if (!confirm("Clear all trips and reset the balance?")) return;
+  S = {balance:START_BAL, tx:[], trip:null}; save(); renderDriver(); toast("Demo data reset.");
+}
+
+function renderBalance(){ const t = peso(S.balance), el = $("balance"); if (el.textContent !== t && el.textContent !== "₱0.00") bump(el); el.textContent = t; }
+function addTx(t){ S.tx.unshift(Object.assign({date:new Date().toLocaleString("en-PH")}, t)); save(); }
+function doLoad(pesos){
+  if (!isFinite(pesos) || pesos < 1 || pesos > 5000){ toast("Enter an amount from ₱1 to ₱5,000."); return; }
+  const c = Math.round(pesos * 100);
+  S.balance += c; addTx({kind:"load", who:$("pid").value.trim() || "PASSENGER-001", amount:c, status:"Loaded"});
+  renderBalance(); renderPassenger(); toast("Added " + peso(c) + " to your balance."); go("home");
+}
+function loadMoney(){ doLoad(parseFloat($("loadAmt").value)); $("loadAmt").value = ""; }
+
+function tapCard(){
+  const id = $("pid").value.trim();
+  if (!id){ toast("Enter your Passenger ID first."); return; }
+  if (S.trip){ toast("A trip is already active."); return; }
+  $("receipt").classList.add("hidden");
+  S.trip = {who:id, start:Date.now()}; save(); renderTrip(); bump($("tripStatus"));
+}
+function cancelTrip(){ S.trip = null; save(); renderTrip(); toast("Trip cancelled. You were not charged."); }
+function renderTrip(){
+  clearInterval(tripTimer);
+  const on = !!S.trip;
+  $("endBox").classList.toggle("hidden", !on);
+  $("tapBtn").classList.toggle("hidden", on); $("pid").disabled = on;
+  if (on){
+    $("pid").value = S.trip.who; $("who").textContent = "Passenger · " + S.trip.who;
+    const tick = () => {
+      const sec = Math.floor((Date.now() - S.trip.start) / 1000);
+      $("tripStatus").className = "status live";
+      $("tripStatus").textContent = "Trip in progress · " + Math.floor(sec/60) + ":" + String(sec%60).padStart(2,"0");
+    };
+    tick(); tripTimer = setInterval(tick, 1000); previewFare();
+  } else {
+    $("tripStatus").className = "status"; $("tripStatus").textContent = "No active trip.";
+    $("who").textContent = "Passenger · " + ($("pid").value.trim() || "—");
+  }
+}
+function previewFare(){
+  const km = parseFloat($("dist").value);
+  $("farePreview").textContent = km > 0 ? "Fare for " + km.toFixed(1) + " km: " + peso(fareFor(km)) : "Enter a distance to see your fare.";
+}
+function endTrip(){
+  if (!S.trip) return;
+  const km = parseFloat($("dist").value);
+  if (!(km > 0) || km > 200){ toast("Enter a distance between 0.1 and 200 km."); return; }
+  const fare = fareFor(km), r = $("receipt");
+  if (S.balance < fare){
+    addTx({kind:"trip", who:S.trip.who, km, amount:fare, status:"Declined"});
+    r.className = "status warn"; bump(r);
+    r.innerHTML = "<strong>Payment declined.</strong> You need " + peso(fare - S.balance) + " more. Load your balance, then end the trip again.";
+    renderPassenger(); return;
+  }
+  S.balance -= fare;
+  addTx({kind:"trip", who:S.trip.who, km, amount:fare, status:"Paid"});
+  r.className = "status"; bump(r);
+  r.innerHTML = "<strong>Trip paid</strong><br>Distance: " + km.toFixed(1) + " km<br>Fare: " + peso(fare) + "<br>Balance: " + peso(S.balance);
+  S.trip = null; save(); $("dist").value = "";
+  renderBalance(); renderTrip(); renderPassenger();
+}
+
+function rowHTML(t){
+  const cls = t.status === "Declined" ? "bad" : (t.kind === "load" ? "good" : "");
+  const title = t.kind === "load" ? "Balance loaded" : "Trip, " + t.km.toFixed(1) + " km";
+  const sign = t.kind === "load" ? "+" : (t.status === "Paid" ? "−" : "");
+  return '<div class="row"><div><strong>' + title + '</strong><div class="small">' + esc(t.who) + "<br>" + esc(t.date) + '</div></div>' +
+         '<div class="r ' + cls + '">' + sign + peso(t.amount) + '<div class="small">' + esc(t.status) + '</div></div></div>';
+}
+function renderPassenger(){
+  $("pHist").innerHTML = S.tx.length ? S.tx.map(rowHTML).join("") : '<p class="small">Nothing yet. Load your balance or take a trip.</p>';
+}
+function renderDriver(){
+  const trips = S.tx.filter(t => t.kind === "trip"), paid = trips.filter(t => t.status === "Paid");
+  $("dTotal").textContent = peso(paid.reduce((a,t) => a + t.amount, 0));
+  $("dPaid").textContent = paid.length;
+  $("dDecl").textContent = trips.length - paid.length;
+  $("dKm").textContent = paid.reduce((a,t) => a + t.km, 0).toFixed(1);
+  $("dHist").innerHTML = trips.length ? trips.map(rowHTML).join("") : '<p class="small">No trips yet. Log in as a passenger to start one.</p>';
+}
+
+let step = 0;
+function resetJeep(){ step = 0; clearInterval(jeepTimer); showJeep(); jeepTimer = setInterval(() => { step = (step + 1) % 5; showJeep(); }, 5000); }
+function showJeep(){
+  const j = ROUTES[$("route").value];
+  $("jNum").textContent = j.n; $("jLoc").textContent = j.loc[step];
+  $("eta").textContent = j.eta[step]; $("prog").style.width = ((step + 1) * 20) + "%";
+}
+$("route").innerHTML = Object.keys(ROUTES).map(r => "<option>" + esc(r) + "</option>").join("");
+
+// ---------- Tactile feedback ----------
+function bump(el){ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+document.addEventListener("pointerdown", e => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 1.6, x = document.createElement("span");
+  x.className = "rip"; x.style.cssText = "width:" + d + "px;height:" + d + "px;left:" + (e.clientX - r.left - d/2) + "px;top:" + (e.clientY - r.top - d/2) + "px";
+  b.appendChild(x); setTimeout(() => x.remove(), 600);
+});
+renderBalance();
+</script>
+</body>
+</html>
